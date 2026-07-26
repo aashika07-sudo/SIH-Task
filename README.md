@@ -30,90 +30,51 @@ Technologies Used
 - HTML
 - CSS
 - JavaScript
-- Jinja2 Templates
-
 
 Requirements
-
 Before running the project, make sure the following are installed on your computer:
-
 - Python 3.x
 - Flask
 - A web browser
 - Git (optional, for version control)
 
-
 Project Execution Steps
-
 Step 1: Clone the Repository
-
 Open the terminal and clone the GitHub repository:
-
 git clone https://github.com/aashika07-sudo/SIH-Task.git
 
-Replace YourUsername with your GitHub username.
-
-
 Step 2: Open the Project Folder
-
 Navigate to the project directory:
-
 cd SIH-Task
 
-
 Step 3: Create a Virtual Environment
-
 Create a Python virtual environment:
-
 python -m venv venv
 
-
 Step 4: Activate the Virtual Environment
-
 For Windows:
-
 venv\Scripts\activate
 
-After activation, you should see (venv) in the terminal.
-
-
 Step 5: Install Flask
-
 Install Flask using:
-
 pip install flask
 
-
 Step 6: Initialize the Database
-
 Run the database file:
-
 python database.py
-
 This will create the SQLite database and the required database table.
-
 If the database has already been created, this step may not be required.
 
-
 Step 7: Run the Flask Application
-
 Start the Flask application:
-
 python app.py
-
 The terminal will show a local URL similar to:
-
 http://127.0.0.1:5000
-
 
 Step 8: Open the Application
-
 Open your web browser and enter:
-
 http://127.0.0.1:5000
-
 The Village Water Point Monitoring System will now be available.
-
 
 Application Features
 
