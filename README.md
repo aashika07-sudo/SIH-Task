@@ -49,7 +49,7 @@ Step 1: Clone the Repository
 
 Open the terminal and clone the GitHub repository:
 
-git clone https://github.com/YourUsername/SIH-Task.git
+git clone https://github.com/aashika07-sudo/SIH-Task.git
 
 Replace YourUsername with your GitHub username.
 
