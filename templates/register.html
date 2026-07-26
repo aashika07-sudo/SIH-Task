@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Register Reading</title>
+
+
+<style>
+
+body {
+
+    margin: 0;
+
+    font-family: Arial;
+
+    background: #eaf6ff;
+
+}
+
+
+header {
+
+    background: #075985;
+
+    color: white;
+
+    padding: 20px 40px;
+
+}
+
+
+header a {
+
+    color: white;
+
+    text-decoration: none;
+
+    margin-right: 25px;
+
+}
+
+
+.container {
+
+    max-width: 600px;
+
+    margin: 40px auto;
+
+    padding: 30px;
+
+    background: white;
+
+    border-radius: 15px;
+
+    box-shadow:
+    0 5px 18px
+    rgba(0,0,0,0.08);
+
+}
+
+
+h1 {
+
+    color: #075985;
+
+}
+
+
+label {
+
+    display: block;
+
+    margin-top: 15px;
+
+    font-weight: bold;
+
+}
+
+
+input,
+select {
+
+    width: 100%;
+
+    padding: 12px;
+
+    margin-top: 7px;
+
+    border: 1px solid #cbd5e1;
+
+    border-radius: 6px;
+
+}
+
+
+button {
+
+    margin-top: 25px;
+
+    width: 100%;
+
+    padding: 13px;
+
+    background: #0284c7;
+
+    color: white;
+
+    border: none;
+
+    border-radius: 7px;
+
+    cursor: pointer;
+
+}
+
+
+button:hover {
+
+    background: #0369a1;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+<h2>
+Register Water Point Reading
+</h2>
+
+
+<a href="/">
+Dashboard
+</a>
+
+
+<a href="/listing">
+Records
+</a>
+
+</header>
+
+
+
+<div class="container">
+
+
+<h1>
+New Reading
+</h1>
+
+
+<form
+method="POST"
+action="/register">
+
+
+<label>
+Water Point ID
+</label>
+
+
+<input
+type="text"
+name="waterpoint_id"
+placeholder="Example: WP041"
+required>
+
+
+<label>
+Habitation
+</label>
+
+
+<input
+type="text"
+name="habitation"
+placeholder="Example: North Colony"
+required>
+
+
+<label>
+Status
+</label>
+
+
+<select
+name="flow_ok"
+required>
+
+<option value="">
+Select Status
+</option>
+
+<option value="Working">
+Working
+</option>
+
+<option value="Failed">
+Failed
+</option>
+
+</select>
+
+
+<label>
+Usage Count
+</label>
+
+
+<input
+type="number"
+name="usage_count"
+min="0"
+placeholder="Example: 45"
+required>
+
+
+<button
+type="submit">
+
+Save Reading
+
+</button>
+
+
+</form>
+
+
+</div>
+
+
+</body>
+
+</html>

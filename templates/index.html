@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+<title>WaterWatch Dashboard</title>
+<style>
+* {
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #eaf6ff;
+    color: #1e293b;
+
+}
+header {
+    background: linear-gradient(
+        135deg,
+        #075985,
+        #0284c7
+    );
+    color: white;
+    padding: 22px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.logo-icon {
+    font-size: 30px;
+}
+.logo h2 {
+    margin: 0;
+}
+.logo p {
+    margin: 4px 0 0;
+    font-size: 13px;
+}
+nav a {
+    color: white;
+    text-decoration: none;
+    margin-left: 25px;
+    font-weight: bold;
+}
+nav a:hover {
+    color: #bae6fd;
+
+}
+.container {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+.welcome h1 {
+    color: #075985;
+}
+.welcome p {
+    color: #64748b;
+}
+.cards {
+    display: grid;
+    grid-template-columns:
+        repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 30px;
+}
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow:
+        0 5px 18px
+        rgba(0,0,0,0.08);
+    border-top: 5px solid #0284c7;
+}
+.card h3 {
+    color: #64748b;
+}
+.number {
+    font-size: 38px;
+    font-weight: bold;
+    color: #0284c7;
+}
+.working {
+
+    border-top-color: #16a34a;
+
+}
+
+
+.working .number {
+
+    color: #16a34a;
+
+}
+
+
+.failed {
+
+    border-top-color: #dc2626;
+
+}
+
+
+.failed .number {
+
+    color: #dc2626;
+
+}
+
+
+.section {
+
+    background: white;
+
+    margin-top: 30px;
+
+    padding: 30px;
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 5px 18px
+        rgba(0,0,0,0.08);
+
+}
+
+
+.button {
+
+    display: inline-block;
+
+    padding: 12px 20px;
+
+    margin-top: 15px;
+
+    margin-right: 10px;
+
+    background: #0284c7;
+
+    color: white;
+
+    text-decoration: none;
+
+    border-radius: 7px;
+
+}
+
+
+.button:hover {
+
+    background: #0369a1;
+
+}
+
+
+@media(max-width:700px) {
+
+    header {
+
+        flex-direction: column;
+
+        gap: 15px;
+
+    }
+
+
+    .cards {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+<div class="logo">
+
+<div class="logo-icon">
+💧
+</div>
+
+<div>
+
+<h2>
+WaterWatch
+</h2>
+
+<p>
+Village Water Monitoring System
+</p>
+
+</div>
+
+</div>
+
+
+<nav>
+
+<a href="/">
+Dashboard
+</a>
+
+<a href="/register">
+Register
+</a>
+
+<a href="/listing">
+Records
+</a>
+
+</nav>
+
+</header>
+<div class="container">
+<div class="welcome">
+<h1>
+Village Water Point Dashboard
+</h1>
+<p>
+Monitor village water points and
+identify failed points that require
+maintenance.
+</p>
+</div>
+<div class="cards">
+<div class="card">
+<h3>
+Total Water Points
+</h3>
+<div class="number">
+{{ total }}
+</div>
+</div>
+<div class="card working">
+<h3>
+Working Water Points
+</h3>
+
+<div class="number">
+
+{{ working }}
+
+</div>
+
+</div>
+
+
+
+<div class="card failed">
+
+<h3>
+Failed Water Points
+</h3>
+
+<div class="number">
+
+{{ failed }}
+
+</div>
+
+</div>
+
+
+</div>
+<div class="section">
+<h2>
+Manage Water Point Readings
+</h2>
+<p>
+Register new water point readings
+or view all existing readings.
+</p>
+<a
+href="/register"
+class="button">
++ Register New Reading
+</a>
+<a
+href="/listing"
+class="button">
+View All Records
+</a>
+</div>
+</div>
+</body>
+</html>
