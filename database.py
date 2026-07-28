@@ -1,99 +1,171 @@
 import sqlite3
-import csv
-import os
-
 
 DB_NAME = "water_points.db"
-CSV_FILE = "data/sample_data.csv"
 
 
-def create_database():
+# ==========================================
+# DATABASE CONNECTION
+# ==========================================
 
+def get_db():
     conn = sqlite3.connect(DB_NAME)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+# ==========================================
+# CREATE TABLE
+# ==========================================
+
+def init_db():
+
+    conn = get_db()
 
     cursor = conn.cursor()
 
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS readings (
-
-            reading_id INTEGER PRIMARY KEY AUTOINCREMENT,
-
-            waterpoint_id TEXT NOT NULL,
-
-            habitation TEXT NOT NULL,
-
-            flow_ok TEXT NOT NULL,
-
-            usage_count INTEGER NOT NULL,
-
-            recorded_at TEXT NOT NULL
-
+        CREATE TABLE IF NOT EXISTS water_points (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            location TEXT NOT NULL,
+            status TEXT NOT NULL,
+            uptime REAL DEFAULT 0,
+            last_checked TEXT
         )
     """)
 
     conn.commit()
 
-    print("Database table created successfully!")
+    conn.close()
 
-    # Check whether data already exists
-    cursor.execute("SELECT COUNT(*) FROM readings")
 
-    count = cursor.fetchone()[0]
+# ==========================================
+# ADD WATER POINT
+# ==========================================
 
-    # Import CSV only if database is empty
-    if count == 0:
+def add_water_point(
+    name,
+    location,
+    status,
+    uptime,
+    last_checked
+):
 
-        if os.path.exists(CSV_FILE):
+    conn = get_db()
 
-            with open(
-                CSV_FILE,
-                "r",
-                encoding="utf-8"
-            ) as file:
+    cursor = conn.cursor()
 
-                reader = csv.DictReader(file)
-
-                for row in reader:
-
-                    cursor.execute("""
-                        INSERT INTO readings
-                        (
-                            waterpoint_id,
-                            habitation,
-                            flow_ok,
-                            usage_count,
-                            recorded_at
-                        )
-                        VALUES (?, ?, ?, ?, ?)
-                    """, (
-
-                        row["waterpoint_id"],
-                        row["habitation"],
-                        row["flow_ok"],
-                        int(row["usage_count"]),
-                        row["recorded_at"]
-
-                    ))
-
-            conn.commit()
-
-            print("Sample readings imported successfully!")
-
-        else:
-
-            print(
-                "sample_data.csv not found!"
-            )
-
-    else:
-
-        print(
-            f"Database already contains {count} readings."
+    cursor.execute("""
+        INSERT INTO water_points
+        (
+            name,
+            location,
+            status,
+            uptime,
+            last_checked
         )
+        VALUES (?, ?, ?, ?, ?)
+    """, (
+        name,
+        location,
+        status,
+        uptime,
+        last_checked
+    ))
+
+    conn.commit()
 
     conn.close()
 
 
-if __name__ == "__main__":
+# ==========================================
+# GET ALL WATER POINTS
+# ==========================================
 
-    create_database()
+def get_all_water_points():
+
+    conn = get_db()
+
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT *
+        FROM water_points
+        ORDER BY id DESC
+    """)
+
+    water_points = cursor.fetchall()
+
+    conn.close()
+
+    return water_points
+
+
+# ==========================================
+# GET WATER POINT COUNTS
+# ==========================================
+
+def get_water_point_statistics():
+
+    conn = get_db()
+
+    cursor = conn.cursor()
+
+
+    # Total
+
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM water_points
+    """)
+
+    total = cursor.fetchone()[0]
+
+
+    # Working
+
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM water_points
+        WHERE status = 'Working'
+    """)
+
+    working = cursor.fetchone()[0]
+
+
+    # Not Working
+
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM water_points
+        WHERE status = 'Not Working'
+    """)
+
+    not_working = cursor.fetchone()[0]
+
+
+    # Uptime
+
+    cursor.execute("""
+        SELECT AVG(uptime)
+        FROM water_points
+    """)
+
+    uptime_result = cursor.fetchone()[0]
+
+
+    if uptime_result is None:
+        uptime = 0
+    else:
+        uptime = round(uptime_result, 2)
+
+
+    conn.close()
+
+
+    return (
+        total,
+        working,
+        not_working,
+        uptime
+    )

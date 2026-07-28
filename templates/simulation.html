@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Control Simulation
+    </title>
+
+
+    <!-- Existing Page CSS -->
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/pages.css') }}"
+    >
+
+
+    <!-- Chart.js -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/chart.js"
+    ></script>
+
+</head>
+
+
+<body>
+
+
+<!-- ==========================================
+     HEADER
+     ========================================== -->
+
+<header class="site-header">
+
+    <div class="header-inner">
+
+
+        <div class="site-title">
+
+            Village Water Point Monitoring
+
+        </div>
+
+
+        <nav class="site-nav">
+
+            <a href="{{ url_for('index') }}">
+
+                Dashboard
+
+            </a>
+
+
+            <a href="{{ url_for('listing') }}">
+
+                Water Points
+
+            </a>
+
+
+            <a href="{{ url_for('register') }}">
+
+                Register
+
+            </a>
+
+
+            <a href="{{ url_for('simulation') }}">
+
+                Control Simulation
+
+            </a>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+
+<!-- ==========================================
+     MAIN CONTENT
+     ========================================== -->
+
+<main class="page-container">
+
+
+    <!-- ======================================
+         PAGE INTRODUCTION
+         ====================================== -->
+
+    <section class="page-introduction">
+
+        <h2>
+
+            Control Simulation
+
+        </h2>
+
+
+        <p>
+
+            Simulate a sudden disturbance and observe
+            how the controller restores water availability
+            toward the target value.
+
+        </p>
+
+    </section>
+
+
+
+    <!-- ======================================
+         SIMULATION FORM
+         ====================================== -->
+
+    <section class="form-card">
+
+
+        <h2>
+
+            Simulation Parameters
+
+        </h2>
+
+
+        {% if error %}
+
+        <div class="result-message">
+
+            {{ error }}
+
+        </div>
+
+        {% endif %}
+
+
+
+        <form
+            method="POST"
+            action="{{ url_for('simulation') }}"
+        >
+
+
+            <!-- TARGET -->
+
+            <div class="form-group">
+
+                <label for="target">
+
+                    Target Water Availability (%)
+
+                </label>
+
+
+                <input
+                    type="number"
+                    id="target"
+                    name="target"
+                    value="100"
+                    min="0"
+                    max="100"
+                    step="1"
+                    required
+                >
+
+            </div>
+
+
+
+            <!-- INITIAL VALUE -->
+
+            <div class="form-group">
+
+                <label for="initial_value">
+
+                    Initial Water Availability (%)
+
+                </label>
+
+
+                <input
+                    type="number"
+                    id="initial_value"
+                    name="initial_value"
+                    value="100"
+                    min="0"
+                    max="100"
+                    step="1"
+                    required
+                >
+
+            </div>
+
+
+
+            <!-- DISTURBANCE TIME -->
+
+            <div class="form-group">
+
+                <label for="disturbance_time">
+
+                    Disturbance Time
+
+                </label>
+
+
+                <input
+                    type="number"
+                    id="disturbance_time"
+                    name="disturbance_time"
+                    value="10"
+                    min="1"
+                    required
+                >
+
+            </div>
+
+
+
+            <!-- DISTURBANCE AMOUNT -->
+
+            <div class="form-group">
+
+                <label for="disturbance_amount">
+
+                    Disturbance Amount (%)
+
+                </label>
+
+
+                <input
+                    type="number"
+                    id="disturbance_amount"
+                    name="disturbance_amount"
+                    value="40"
+                    min="0"
+                    max="100"
+                    step="1"
+                    required
+                >
+
+            </div>
+
+
+
+            <!-- RECOVERY RATE -->
+
+            <div class="form-group">
+
+                <label for="recovery_rate">
+
+                    Recovery Rate
+
+                </label>
+
+
+                <input
+                    type="number"
+                    id="recovery_rate"
+                    name="recovery_rate"
+                    value="0.20"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    required
+                >
+
+            </div>
+
+
+
+            <!-- TOTAL TIME -->
+
+            <div class="form-group">
+
+                <label for="total_time">
+
+                    Total Simulation Time
+
+                </label>
+
+
+                <input
+                    type="number"
+                    id="total_time"
+                    name="total_time"
+                    value="40"
+                    min="10"
+                    required
+                >
+
+            </div>
+
+
+
+            <!-- BUTTON -->
+
+            <div class="button-area">
+
+                <button
+                    type="submit"
+                    class="primary-button"
+                >
+
+                    Run Simulation
+
+                </button>
+
+
+                <a
+                    href="{{ url_for('index') }}"
+                    class="secondary-button"
+                >
+
+                    Back to Dashboard
+
+                </a>
+
+            </div>
+
+
+        </form>
+
+    </section>
+
+
+
+    <!-- ======================================
+         SIMULATION RESULTS
+         ====================================== -->
+
+    {% if simulation %}
+
+
+    <section class="result-card">
+
+
+        <h2>
+
+            Simulation Results
+
+        </h2>
+
+
+        <div class="result-message">
+
+
+            <p>
+
+                <strong>
+                    Final Water Availability:
+                </strong>
+
+                {{ simulation.final_value }}%
+
+            </p>
+
+
+            <p>
+
+                <strong>
+                    Recovery Status:
+                </strong>
+
+
+                {% if simulation.recovered %}
+
+                    <span
+                        style="
+                            color: #15803d;
+                            font-weight: bold;
+                        "
+                    >
+
+                        ✓ System Recovered
+
+                    </span>
+
+                {% else %}
+
+                    <span
+                        style="
+                            color: #b45309;
+                            font-weight: bold;
+                        "
+                    >
+
+                        ⚠ Recovery In Progress
+
+                    </span>
+
+                {% endif %}
+
+            </p>
+
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- ======================================
+         GRAPH
+         ====================================== -->
+
+    <section
+        class="result-card"
+        style="margin-top: 25px;"
+    >
+
+
+        <h2>
+
+            Water Point Control Response
+
+        </h2>
+
+
+        <p>
+
+            The graph shows the target availability,
+            actual water availability, disturbance,
+            and controller response over time.
+
+        </p>
+
+
+        <div
+            style="
+                width: 100%;
+                height: 450px;
+                margin-top: 25px;
+            "
+        >
+
+            <canvas
+                id="simulationChart"
+            ></canvas>
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- ======================================
+         SIMULATION DETAILS
+         ====================================== -->
+
+    <section
+        class="result-card"
+        style="margin-top: 25px;"
+    >
+
+
+        <h2>
+
+            Simulation Summary
+
+        </h2>
+
+
+        <div
+            style="
+                display: grid;
+                grid-template-columns:
+                    repeat(auto-fit, minmax(180px, 1fr));
+                gap: 15px;
+                margin-top: 20px;
+            "
+        >
+
+
+            <div
+                style="
+                    background: #eff6ff;
+                    padding: 18px;
+                    border-radius: 10px;
+                "
+            >
+
+                <strong>
+                    Target
+                </strong>
+
+                <br>
+
+                {{ simulation.target[-1] }}%
+
+            </div>
+
+
+
+            <div
+                style="
+                    background: #f0fdf4;
+                    padding: 18px;
+                    border-radius: 10px;
+                "
+            >
+
+                <strong>
+                    Final Value
+                </strong>
+
+                <br>
+
+                {{ simulation.final_value }}%
+
+            </div>
+
+
+
+            <div
+                style="
+                    background: #fff7ed;
+                    padding: 18px;
+                    border-radius: 10px;
+                "
+            >
+
+                <strong>
+                    Disturbance
+                </strong>
+
+                <br>
+
+                {{ simulation.disturbance[simulation.disturbance|length - 1] }}%
+
+            </div>
+
+
+
+            <div
+                style="
+                    background: #f5f3ff;
+                    padding: 18px;
+                    border-radius: 10px;
+                "
+            >
+
+                <strong>
+                    Recovery
+                </strong>
+
+                <br>
+
+                {{ simulation.recovered }}
+
+            </div>
+
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- ======================================
+         JAVASCRIPT GRAPH
+         ====================================== -->
+
+    <script>
+
+        const timeData =
+            {{ simulation.time | tojson }};
+
+
+        const targetData =
+            {{ simulation.target | tojson }};
+
+
+        const actualData =
+            {{ simulation.actual | tojson }};
+
+
+        const disturbanceData =
+            {{ simulation.disturbance | tojson }};
+
+
+        const controllerData =
+            {{ simulation.controller | tojson }};
+
+
+
+        const ctx =
+            document
+                .getElementById(
+                    "simulationChart"
+                )
+                .getContext("2d");
+
+
+
+        new Chart(
+            ctx,
+            {
+
+                type: "line",
+
+
+                data: {
+
+                    labels: timeData,
+
+
+                    datasets: [
+
+                        {
+
+                            label:
+                                "Target Availability (%)",
+
+                            data:
+                                targetData,
+
+                            borderColor:
+                                "#0284c7",
+
+                            backgroundColor:
+                                "rgba(2, 132, 199, 0.10)",
+
+                            borderWidth: 3,
+
+                            pointRadius: 2,
+
+                            tension: 0.2
+
+                        },
+
+
+                        {
+
+                            label:
+                                "Actual Availability (%)",
+
+                            data:
+                                actualData,
+
+                            borderColor:
+                                "#16a34a",
+
+                            backgroundColor:
+                                "rgba(22, 163, 74, 0.10)",
+
+                            borderWidth: 3,
+
+                            pointRadius: 2,
+
+                            tension: 0.2
+
+                        },
+
+
+                        {
+
+                            label:
+                                "Disturbance (%)",
+
+                            data:
+                                disturbanceData,
+
+                            borderColor:
+                                "#dc2626",
+
+                            backgroundColor:
+                                "rgba(220, 38, 38, 0.10)",
+
+                            borderWidth: 2,
+
+                            borderDash:
+                                [6, 6],
+
+                            pointRadius: 2,
+
+                            tension: 0.2
+
+                        },
+
+
+                        {
+
+                            label:
+                                "Controller Action",
+
+                            data:
+                                controllerData,
+
+                            borderColor:
+                                "#7c3aed",
+
+                            backgroundColor:
+                                "rgba(124, 58, 237, 0.10)",
+
+                            borderWidth: 2,
+
+                            pointRadius: 2,
+
+                            tension: 0.2
+
+                        }
+
+                    ]
+
+                },
+
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+
+                    interaction: {
+
+                        mode: "index",
+
+                        intersect: false
+
+                    },
+
+
+                    plugins: {
+
+                        legend: {
+
+                            display: true,
+
+                            position: "top"
+
+                        }
+
+                    },
+
+
+                    scales: {
+
+                        x: {
+
+                            title: {
+
+                                display: true,
+
+                                text:
+                                    "Time"
+
+                            }
+
+                        },
+
+
+                        y: {
+
+                            title: {
+
+                                display: true,
+
+                                text:
+                                    "Water Availability (%)"
+
+                            },
+
+                            min: 0,
+
+                            max: 110
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        );
+
+    </script>
+
+
+    {% endif %}
+
+
+</main>
+
+
+
+<!-- ==========================================
+     FOOTER
+     ========================================== -->
+
+<footer class="site-footer">
+
+    <p>
+
+        © 2026 Village Water Point Monitoring System
+
+    </p>
+
+</footer>
+
+
+<script
+    src="{{ url_for('static', filename='js/script.js') }}"
+></script>
+
+
+</body>
+
+</html>

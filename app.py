@@ -1,24 +1,35 @@
-from flask import Flask, render_template, request, redirect, url_for
-import sqlite3
-from datetime import datetime
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    url_for
+)
 
+from database import (
+    init_db,
+    add_water_point,
+    get_all_water_points,
+    get_water_point_statistics
+)
+
+from simulator import (
+    run_step_disturbance_simulation
+)
+
+
+# ==========================================
+# FLASK APPLICATION
+# ==========================================
 
 app = Flask(__name__)
 
-DB_NAME = "water_points.db"
-
 
 # ==========================================
-# DATABASE CONNECTION
+# INITIALIZE DATABASE
 # ==========================================
 
-def get_db():
-
-    conn = sqlite3.connect(DB_NAME)
-
-    conn.row_factory = sqlite3.Row
-
-    return conn
+init_db()
 
 
 # ==========================================
@@ -28,48 +39,24 @@ def get_db():
 @app.route("/")
 def index():
 
-    conn = get_db()
-
-    # Total records
-    total = conn.execute(
-        "SELECT COUNT(*) FROM readings"
-    ).fetchone()[0]
-
-    # Working records
-    working = conn.execute(
-        """
-        SELECT COUNT(*)
-        FROM readings
-        WHERE flow_ok = 'Working'
-        """
-    ).fetchone()[0]
-
-    # Failed records
-    failed = conn.execute(
-        """
-        SELECT COUNT(*)
-        FROM readings
-        WHERE flow_ok = 'Failed'
-        """
-    ).fetchone()[0]
-
-    conn.close()
+    (
+        total,
+        working,
+        not_working,
+        uptime
+    ) = get_water_point_statistics()
 
     return render_template(
-
         "index.html",
-
         total=total,
-
         working=working,
-
-        failed=failed
-
+        not_working=not_working,
+        uptime=uptime
     )
 
 
 # ==========================================
-# REGISTER NEW READING
+# REGISTER WATER POINT
 # ==========================================
 
 @app.route(
@@ -80,129 +67,117 @@ def register():
 
     if request.method == "POST":
 
-        waterpoint_id = request.form.get(
-            "waterpoint_id",
+        name = request.form.get(
+            "name",
             ""
         ).strip()
 
-        habitation = request.form.get(
-            "habitation",
+        location = request.form.get(
+            "location",
             ""
         ).strip()
 
-        flow_ok = request.form.get(
-            "flow_ok",
+        status = request.form.get(
+            "status",
             ""
         ).strip()
 
-        usage_count = request.form.get(
-            "usage_count",
+        uptime_value = request.form.get(
+            "uptime",
+            "0"
+        ).strip()
+
+        last_checked = request.form.get(
+            "last_checked",
             ""
         ).strip()
 
 
-        # Validate Water Point ID
+        # ------------------------------
+        # VALIDATE NAME
+        # ------------------------------
 
-        if not waterpoint_id:
+        if not name:
 
-            return "Water Point ID is required."
-
-
-        # Validate Habitation
-
-        if not habitation:
-
-            return "Habitation is required."
+            return render_template(
+                "register.html",
+                error="Water Point Name is required."
+            )
 
 
-        # Validate Status
+        # ------------------------------
+        # VALIDATE LOCATION
+        # ------------------------------
 
-        if flow_ok not in [
+        if not location:
 
-            "Working",
-
-            "Failed"
-
-        ]:
-
-            return "Invalid status."
+            return render_template(
+                "register.html",
+                error="Location is required."
+            )
 
 
-        # Validate Usage Count
+        # ------------------------------
+        # VALIDATE STATUS
+        # ------------------------------
+
+        if not status:
+
+            return render_template(
+                "register.html",
+                error="Please select a status."
+            )
+
+
+        # ------------------------------
+        # CONVERT UPTIME
+        # ------------------------------
 
         try:
 
-            usage_count = int(
-                usage_count
+            uptime = float(
+                uptime_value
             )
 
         except ValueError:
 
-            return "Usage count must be a number."
+            uptime = 0
 
 
-        if usage_count < 0:
+        # ------------------------------
+        # LIMIT UPTIME
+        # ------------------------------
 
-            return "Usage count cannot be negative."
-
-
-        # Current date and time
-
-        recorded_at = datetime.now().strftime(
-            "%Y-%m-%d %H:%M:%S"
-        )
-
-
-        # Connect to database
-
-        conn = get_db()
-
-
-        # Insert new record
-
-        conn.execute(
-            """
-            INSERT INTO readings
-            (
-                waterpoint_id,
-                habitation,
-                flow_ok,
-                usage_count,
-                recorded_at
-            )
-
-            VALUES (?, ?, ?, ?, ?)
-            """,
-
-            (
-
-                waterpoint_id,
-
-                habitation,
-
-                flow_ok,
-
-                usage_count,
-
-                recorded_at
-
+        uptime = max(
+            0,
+            min(
+                100,
+                uptime
             )
         )
 
 
-        conn.commit()
+        # ------------------------------
+        # SAVE TO DATABASE
+        # ------------------------------
 
-        conn.close()
+        add_water_point(
+            name,
+            location,
+            status,
+            uptime,
+            last_checked
+        )
 
 
-        # Go to listing page
+        # ------------------------------
+        # REDIRECT TO LISTING
+        # ------------------------------
 
         return redirect(
             url_for("listing")
         )
 
-
-    # Display register page
 
     return render_template(
         "register.html"
@@ -210,195 +185,144 @@ def register():
 
 
 # ==========================================
-# LISTING
-# SEARCH
-# FILTER
-# ORDERING
+# WATER POINT LISTING
 # ==========================================
 
 @app.route("/listing")
 def listing():
 
-    # Get search value
-
-    search = request.args.get(
-        "search",
-        ""
-    ).strip()
-
-
-    # Get selected status
-
-    status = request.args.get(
-        "status",
-        "All"
-    )
-
-
-    # Connect to database
-
-    conn = get_db()
-
-
-    # Base SQL query
-
-    query = """
-        SELECT
-            reading_id,
-            waterpoint_id,
-            habitation,
-            flow_ok,
-            usage_count,
-            recorded_at
-
-        FROM readings
-
-        WHERE 1 = 1
-    """
-
-
-    # Parameters for SQL query
-
-    params = []
-
-
-    # ==========================================
-    # SEARCH FILTER
-    # ==========================================
-
-    if search:
-
-        query += """
-            AND (
-                waterpoint_id LIKE ?
-                OR habitation LIKE ?
-            )
-        """
-
-
-        search_value = "%" + search + "%"
-
-
-        params.append(
-            search_value
-        )
-
-
-        params.append(
-            search_value
-        )
-
-
-    # ==========================================
-    # STATUS FILTER
-    # ==========================================
-
-    if status == "Working":
-
-        query += """
-            AND flow_ok = ?
-        """
-
-        params.append(
-            "Working"
-        )
-
-
-    elif status == "Failed":
-
-        query += """
-            AND flow_ok = ?
-        """
-
-        params.append(
-            "Failed"
-        )
-
-
-    # ==========================================
-    # ORDERING
-    # ==========================================
-
-    query += """
-        ORDER BY
-            CASE
-                WHEN flow_ok = 'Failed'
-                THEN 0
-                ELSE 1
-            END,
-            reading_id ASC
-    """
-
-
-    # Execute query
-
-    readings = conn.execute(
-
-        query,
-
-        params
-
-    ).fetchall()
-
-
-    # Close database
-
-    conn.close()
-
-
-    # Send data to listing.html
+    water_points = get_all_water_points()
 
     return render_template(
-
         "listing.html",
-
-        readings=readings,
-
-        search=search,
-
-        status=status
-
+        water_points=water_points,
+        readings=water_points
     )
 
 
 # ==========================================
-# DELETE A PARTICULAR RECORD
+# SIMULATION
 # ==========================================
 
 @app.route(
-    "/delete/<int:reading_id>",
-    methods=["POST"]
+    "/simulation",
+    methods=["GET", "POST"]
 )
-def delete_reading(reading_id):
+def simulation():
 
-    conn = get_db()
+    simulation_result = None
+
+    if request.method == "POST":
+
+        # ------------------------------
+        # GET FORM VALUES
+        # ------------------------------
+
+        target = request.form.get(
+            "target",
+            100
+        )
+
+        initial_value = request.form.get(
+            "initial_value",
+            100
+        )
+
+        disturbance_time = request.form.get(
+            "disturbance_time",
+            10
+        )
+
+        disturbance_amount = request.form.get(
+            "disturbance_amount",
+            40
+        )
+
+        recovery_rate = request.form.get(
+            "recovery_rate",
+            0.20
+        )
+
+        total_time = request.form.get(
+            "total_time",
+            40
+        )
 
 
-    # Delete only the selected record
+        # ------------------------------
+        # CONVERT VALUES
+        # ------------------------------
 
-    conn.execute(
-        """
-        DELETE FROM readings
-        WHERE reading_id = ?
-        """,
-        (reading_id,)
-    )
+        try:
+
+            target = float(target)
+
+            initial_value = float(
+                initial_value
+            )
+
+            disturbance_time = int(
+                disturbance_time
+            )
+
+            disturbance_amount = float(
+                disturbance_amount
+            )
+
+            recovery_rate = float(
+                recovery_rate
+            )
+
+            total_time = int(
+                total_time
+            )
+
+        except ValueError:
+
+            return render_template(
+                "simulation.html",
+                error="Please enter valid simulation values."
+            )
 
 
-    conn.commit()
+        # ------------------------------
+        # RUN SIMULATION
+        # ------------------------------
 
-    conn.close()
+        simulation_result = (
+            run_step_disturbance_simulation(
+
+                target=target,
+
+                initial_value=initial_value,
+
+                disturbance_time=
+                    disturbance_time,
+
+                disturbance_amount=
+                    disturbance_amount,
+
+                recovery_rate=
+                    recovery_rate,
+
+                total_time=
+                    total_time
+            )
+        )
 
 
-    # Return to listing page
+    # ------------------------------
+    # SHOW SIMULATION PAGE
+    # ------------------------------
 
-    return redirect(
-        url_for("listing")
+    return render_template(
+        "simulation.html",
+        simulation=simulation_result
     )
 
 
 # ==========================================
-# RUN FLASK APPLICATION
+# RUN APPLICATION
 # ==========================================
 
 if __name__ == "__main__":

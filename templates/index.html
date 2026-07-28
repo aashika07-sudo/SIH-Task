@@ -1,186 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
-<title>WaterWatch Dashboard</title>
-<style>
-* {
-    box-sizing: border-box;
-}
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #eaf6ff;
-    color: #1e293b;
 
-}
-header {
-    background: linear-gradient(
-        135deg,
-        #075985,
-        #0284c7
-    );
-    color: white;
-    padding: 22px 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-.logo-icon {
-    font-size: 30px;
-}
-.logo h2 {
-    margin: 0;
-}
-.logo p {
-    margin: 4px 0 0;
-    font-size: 13px;
-}
-nav a {
-    color: white;
-    text-decoration: none;
-    margin-left: 25px;
-    font-weight: bold;
-}
-nav a:hover {
-    color: #bae6fd;
+    <meta charset="UTF-8">
 
-}
-.container {
-    max-width: 1100px;
-    margin: 40px auto;
-    padding: 0 20px;
-}
-.welcome h1 {
-    color: #075985;
-}
-.welcome p {
-    color: #64748b;
-}
-.cards {
-    display: grid;
-    grid-template-columns:
-        repeat(3, 1fr);
-    gap: 20px;
-    margin-top: 30px;
-}
-.card {
-    background: white;
-    padding: 25px;
-    border-radius: 15px;
-    box-shadow:
-        0 5px 18px
-        rgba(0,0,0,0.08);
-    border-top: 5px solid #0284c7;
-}
-.card h3 {
-    color: #64748b;
-}
-.number {
-    font-size: 38px;
-    font-weight: bold;
-    color: #0284c7;
-}
-.working {
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-    border-top-color: #16a34a;
+    <title>Village Water Point Monitoring</title>
 
-}
-
-
-.working .number {
-
-    color: #16a34a;
-
-}
-
-
-.failed {
-
-    border-top-color: #dc2626;
-
-}
-
-
-.failed .number {
-
-    color: #dc2626;
-
-}
-
-
-.section {
-
-    background: white;
-
-    margin-top: 30px;
-
-    padding: 30px;
-
-    border-radius: 15px;
-
-    box-shadow:
-        0 5px 18px
-        rgba(0,0,0,0.08);
-
-}
-
-
-.button {
-
-    display: inline-block;
-
-    padding: 12px 20px;
-
-    margin-top: 15px;
-
-    margin-right: 10px;
-
-    background: #0284c7;
-
-    color: white;
-
-    text-decoration: none;
-
-    border-radius: 7px;
-
-}
-
-
-.button:hover {
-
-    background: #0369a1;
-
-}
-
-
-@media(max-width:700px) {
-
-    header {
-
-        flex-direction: column;
-
-        gap: 15px;
-
-    }
-
-
-    .cards {
-
-        grid-template-columns: 1fr;
-
-    }
-
-}
-
-</style>
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
 
 </head>
 
@@ -188,116 +20,565 @@ nav a:hover {
 <body>
 
 
-<header>
+<!-- =========================================
+     NAVIGATION BAR
+     ========================================= -->
 
-<div class="logo">
+<header class="navbar">
 
-<div class="logo-icon">
-💧
-</div>
+    <div class="navbar-container">
 
-<div>
+        <div class="brand">
 
-<h2>
-WaterWatch
-</h2>
+            <div class="brand-icon">
+                💧
+            </div>
 
-<p>
-Village Water Monitoring System
-</p>
+            <div>
 
-</div>
+                <h1>
+                    Village Water Point
+                </h1>
 
-</div>
+                <span>
+                    Uptime Monitoring System
+                </span>
+
+            </div>
+
+        </div>
 
 
-<nav>
+        <nav class="navigation">
 
-<a href="/">
-Dashboard
-</a>
+            <a href="{{ url_for('index') }}"
+               class="nav-link active">
 
-<a href="/register">
-Register
-</a>
+                📊 Dashboard
 
-<a href="/listing">
-Records
-</a>
+            </a>
 
-</nav>
+
+            <a href="{{ url_for('listing') }}"
+               class="nav-link">
+
+                💧 Water Points
+
+            </a>
+
+
+            <a href="{{ url_for('register') }}"
+               class="nav-link">
+
+                ➕ Register
+
+            </a>
+
+
+            <a href="{{ url_for('simulation') }}"
+               class="nav-link">
+
+                ⚙️ Simulation
+
+            </a>
+
+        </nav>
+
+    </div>
 
 </header>
-<div class="container">
-<div class="welcome">
-<h1>
-Village Water Point Dashboard
-</h1>
-<p>
-Monitor village water points and
-identify failed points that require
-maintenance.
-</p>
-</div>
-<div class="cards">
-<div class="card">
-<h3>
-Total Water Points
-</h3>
-<div class="number">
-{{ total }}
-</div>
-</div>
-<div class="card working">
-<h3>
-Working Water Points
-</h3>
-
-<div class="number">
-
-{{ working }}
-
-</div>
-
-</div>
 
 
 
-<div class="card failed">
+<!-- =========================================
+     MAIN CONTENT
+     ========================================= -->
 
-<h3>
-Failed Water Points
-</h3>
-
-<div class="number">
-
-{{ failed }}
-
-</div>
-
-</div>
+<main class="main-container">
 
 
-</div>
-<div class="section">
-<h2>
-Manage Water Point Readings
-</h2>
-<p>
-Register new water point readings
-or view all existing readings.
-</p>
-<a
-href="/register"
-class="button">
-+ Register New Reading
-</a>
-<a
-href="/listing"
-class="button">
-View All Records
-</a>
-</div>
-</div>
+    <!-- =====================================
+         HERO SECTION
+         ===================================== -->
+
+    <section class="hero-section">
+
+        <div class="hero-content">
+
+            <div class="hero-label">
+                MONITORING DASHBOARD
+            </div>
+
+            <h2>
+                Water Point Uptime Monitoring
+            </h2>
+
+            <p>
+                Monitor the operational status and reliability
+                of village water points in real time.
+            </p>
+
+
+            <a href="{{ url_for('register') }}"
+               class="primary-button">
+
+                <span>+</span>
+                Add Water Point
+
+            </a>
+
+        </div>
+
+
+        <div class="hero-icon">
+
+            💧
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================
+         SUMMARY CARDS
+         ===================================== -->
+
+    <section class="stats-grid">
+
+
+        <!-- TOTAL WATER POINTS -->
+
+        <div class="stat-card total-card">
+
+            <div class="stat-icon">
+                💧
+            </div>
+
+            <div class="stat-content">
+
+                <p class="stat-label">
+                    Total Water Points
+                </p>
+
+                <h3>
+                    {{ total }}
+                </h3>
+
+                <span class="stat-description">
+                    Registered points
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- WORKING -->
+
+        <div class="stat-card working-card">
+
+            <div class="stat-icon">
+                ✓
+            </div>
+
+            <div class="stat-content">
+
+                <p class="stat-label">
+                    Working
+                </p>
+
+                <h3>
+                    {{ working }}
+                </h3>
+
+                <span class="stat-description">
+                    Currently operational
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- NOT WORKING -->
+
+        <div class="stat-card warning-card">
+
+            <div class="stat-icon">
+                !
+            </div>
+
+            <div class="stat-content">
+
+                <p class="stat-label">
+                    Not Working
+                </p>
+
+                <h3>
+                    {{ not_working }}
+                </h3>
+
+                <span class="stat-description">
+                    Need attention
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- UPTIME -->
+
+        <div class="stat-card uptime-card">
+
+            <div class="stat-icon">
+                📈
+            </div>
+
+            <div class="stat-content">
+
+                <p class="stat-label">
+                    Uptime Percentage
+                </p>
+
+                <h3>
+                    {{ uptime }}%
+                </h3>
+
+                <span class="stat-description">
+                    Overall reliability
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================
+         UPTIME PROGRESS
+         ===================================== -->
+
+    <section class="content-card">
+
+        <div class="section-heading">
+
+            <div>
+
+                <h2>
+                    Overall System Reliability
+                </h2>
+
+                <p>
+                    Current uptime performance of all registered
+                    village water points.
+                </p>
+
+            </div>
+
+            <div class="uptime-value">
+                {{ uptime }}%
+            </div>
+
+        </div>
+
+
+        <div class="progress-container">
+
+            <div class="progress-bar">
+
+                <div class="progress-fill"
+                     style="width: {{ uptime }}%;">
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="progress-labels">
+
+            <span>
+                0% - Unavailable
+            </span>
+
+            <span>
+                100% - Fully Reliable
+            </span>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================
+         STATUS OVERVIEW
+         ===================================== -->
+
+    <section class="dashboard-grid">
+
+
+        <!-- STATUS CHART -->
+
+        <div class="content-card chart-card">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <h2>
+                        Water Point Operational Status
+                    </h2>
+
+                    <p>
+                        Current working and non-working water points.
+                    </p>
+
+                </div>
+
+                <span class="live-badge">
+                    ● LIVE
+                </span>
+
+            </div>
+
+
+            <div class="status-chart">
+
+                <div class="chart-bar-container">
+
+                    <div class="chart-label">
+
+                        <span>
+                            Working
+                        </span>
+
+                        <strong>
+                            {{ working }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="chart-bar-background">
+
+                        <div class="chart-bar working-bar"
+                             style="width: {% if total > 0 %}{{ (working / total * 100) }}%{% else %}0%{% endif %};">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="chart-bar-container">
+
+                    <div class="chart-label">
+
+                        <span>
+                            Not Working
+                        </span>
+
+                        <strong>
+                            {{ not_working }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="chart-bar-background">
+
+                        <div class="chart-bar not-working-bar"
+                             style="width: {% if total > 0 %}{{ (not_working / total * 100) }}%{% else %}0%{% endif %};">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="status-summary">
+
+                <div class="status-item">
+
+                    <span class="status-dot working-dot">
+                    </span>
+
+                    <span>
+                        Working
+                    </span>
+
+                </div>
+
+
+                <div class="status-item">
+
+                    <span class="status-dot not-working-dot">
+                    </span>
+
+                    <span>
+                        Not Working
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- QUICK ACTIONS -->
+
+        <div class="content-card actions-card">
+
+            <h2>
+                Quick Actions
+            </h2>
+
+            <p>
+                Manage and monitor your water points.
+            </p>
+
+
+            <a href="{{ url_for('register') }}"
+               class="action-button">
+
+                <span class="action-icon">
+                    ➕
+                </span>
+
+                <span>
+
+                    <strong>
+                        Register Water Point
+                    </strong>
+
+                    <small>
+                        Add a new water point
+                    </small>
+
+                </span>
+
+            </a>
+
+
+            <a href="{{ url_for('listing') }}"
+               class="action-button">
+
+                <span class="action-icon">
+                    💧
+                </span>
+
+                <span>
+
+                    <strong>
+                        View Water Points
+                    </strong>
+
+                    <small>
+                        Check all registered points
+                    </small>
+
+                </span>
+
+            </a>
+
+
+            <a href="{{ url_for('simulation') }}"
+               class="action-button">
+
+                <span class="action-icon">
+                    ⚙️
+                </span>
+
+                <span>
+
+                    <strong>
+                        Run Simulation
+                    </strong>
+
+                    <small>
+                        Test system response
+                    </small>
+
+                </span>
+
+            </a>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================
+         INFORMATION SECTION
+         ===================================== -->
+
+    <section class="information-banner">
+
+        <div class="information-icon">
+            💡
+        </div>
+
+        <div>
+
+            <h3>
+                Why uptime monitoring matters
+            </h3>
+
+            <p>
+                Continuous monitoring helps identify non-operational
+                water points quickly, enabling faster maintenance
+                and ensuring reliable access to clean water for
+                village communities.
+            </p>
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+
+<!-- =========================================
+     FOOTER
+     ========================================= -->
+
+<footer class="footer">
+
+    <p>
+        © 2026 Village Water Point Monitoring System
+    </p>
+
+    <p>
+        Monitoring reliable water access for rural communities
+    </p>
+
+</footer>
+
+
+
+<script src="{{ url_for('static', filename='js/script.js') }}">
+</script>
+
+
 </body>
+
 </html>

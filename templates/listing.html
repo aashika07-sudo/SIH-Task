@@ -1,215 +1,17 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-<title>Water Point Readings</title>
+    <title>Water Point Readings</title>
 
-
-<style>
-
-body {
-
-    margin: 0;
-
-    font-family: Arial;
-
-    background: #eaf6ff;
-
-    color: #1e293b;
-
-}
-
-
-header {
-
-    background: #075985;
-
-    color: white;
-
-    padding: 20px 30px;
-
-}
-
-
-header h1 {
-
-    margin-top: 0;
-
-}
-
-
-nav a {
-
-    color: white;
-
-    text-decoration: none;
-
-    margin-right: 25px;
-
-    font-weight: bold;
-
-}
-
-
-.container {
-
-    max-width: 1100px;
-
-    margin: 40px auto;
-
-    padding: 20px;
-
-}
-
-
-.box {
-
-    background: white;
-
-    padding: 25px;
-
-    border-radius: 15px;
-
-    box-shadow:
-    0 5px 18px
-    rgba(0,0,0,0.08);
-
-}
-
-
-h2 {
-
-    color: #075985;
-
-}
-
-
-form {
-
-    display: flex;
-
-    gap: 10px;
-
-    flex-wrap: wrap;
-
-}
-
-
-input,
-select,
-button {
-
-    padding: 11px;
-
-    border-radius: 6px;
-
-}
-
-
-input,
-select {
-
-    border: 1px solid #cbd5e1;
-
-}
-
-
-button {
-
-    background: #0284c7;
-
-    color: white;
-
-    border: none;
-
-    cursor: pointer;
-
-}
-
-
-button:hover {
-
-    background: #0369a1;
-
-}
-
-
-table {
-
-    width: 100%;
-
-    border-collapse: collapse;
-
-    margin-top: 25px;
-
-}
-
-
-th {
-
-    background: #075985;
-
-    color: white;
-
-    padding: 13px;
-
-    text-align: left;
-
-}
-
-
-td {
-
-    padding: 13px;
-
-    border-bottom: 1px solid #e2e8f0;
-
-}
-
-
-tr:hover {
-
-    background: #f0f9ff;
-
-}
-
-
-.working {
-
-    color: #16a34a;
-
-    font-weight: bold;
-
-}
-
-
-.failed {
-
-    color: #dc2626;
-
-    font-weight: bold;
-
-}
-
-
-@media(max-width:700px) {
-
-    table {
-
-        font-size: 12px;
-
-    }
-
-}
-
-</style>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/pages.css') }}">
 
 </head>
 
@@ -217,259 +19,280 @@ tr:hover {
 <body>
 
 
-<header>
+<header class="site-header">
 
-<h1>
-Water Point Readings
-</h1>
+    <div class="header-inner">
 
-
-<nav>
-
-<a href="/">
-Dashboard
-</a>
+        <div class="site-title">
+            Village Water Point Monitoring
+        </div>
 
 
-<a href="/register">
-Register
-</a>
+        <nav class="site-nav">
 
+            <a href="{{ url_for('index') }}">
+                Dashboard
+            </a>
 
-<a href="/listing">
-Listing
-</a>
+            <a href="{{ url_for('listing') }}">
+                Water Points
+            </a>
 
-</nav>
+            <a href="{{ url_for('register') }}">
+                Register
+            </a>
+
+            <a href="{{ url_for('simulation') }}">
+                Control Simulation
+            </a>
+
+        </nav>
+
+    </div>
 
 </header>
 
 
+<main class="page-container">
 
-<div class="container">
 
+    <section class="page-introduction">
 
-<div class="box">
+        <h2>
+            Water Point Readings
+        </h2>
 
+        <p>
+            View all registered village water points
+            and their current monitoring information.
+        </p>
 
-<h2>
-All Water Point Readings
-</h2>
+    </section>
 
 
+    <section class="result-card">
 
-<form
-method="GET"
-action="/listing">
 
+        {% if water_points %}
 
-<input
 
-type="text"
+        <div style="overflow-x: auto;">
 
-name="search"
 
-placeholder="Search water point or habitation"
+            <table
+                style="
+                    width: 100%;
+                    border-collapse: collapse;
+                    min-width: 700px;
+                "
+            >
 
-value="{{ search }}"
 
->
+                <thead>
 
+                    <tr
+                        style="
+                            background: #075985;
+                            color: white;
+                        "
+                    >
 
-<select name="status">
+                        <th style="padding: 14px;">
+                            ID
+                        </th>
 
+                        <th style="padding: 14px;">
+                            Water Point
+                        </th>
 
-<option
-value="All"
-{% if status == "All" %}
-selected
-{% endif %}>
+                        <th style="padding: 14px;">
+                            Location
+                        </th>
 
-All
+                        <th style="padding: 14px;">
+                            Status
+                        </th>
 
-</option>
+                        <th style="padding: 14px;">
+                            Uptime
+                        </th>
 
+                        <th style="padding: 14px;">
+                            Last Checked
+                        </th>
 
-<option
-value="Working"
-{% if status == "Working" %}
-selected
-{% endif %}>
+                    </tr>
 
-Working
+                </thead>
 
-</option>
 
+                <tbody>
 
-<option
-value="Failed"
-{% if status == "Failed" %}
-selected
-{% endif %}>
 
-Failed
+                    {% for point in water_points %}
 
-</option>
 
+                    <tr
+                        style="
+                            border-bottom:
+                            1px solid #e2e8f0;
+                        "
+                    >
 
-</select>
 
+                        <td style="padding: 14px;">
+                            {{ point['id'] }}
+                        </td>
 
-<button
-type="submit">
 
-Search
+                        <td style="padding: 14px;">
 
-</button>
+                            <strong>
+                                {{ point['name'] }}
+                            </strong>
 
+                        </td>
 
-</form>
 
+                        <td style="padding: 14px;">
 
+                            {{ point['location'] }}
 
-<p>
+                        </td>
 
-Total records displayed:
 
-<strong>
+                        <td style="padding: 14px;">
 
-{{ readings|length }}
+                            {% if point['status'] == 'Working' %}
 
-</strong>
+                            <span
+                                style="
+                                    background: #dcfce7;
+                                    color: #15803d;
+                                    padding: 5px 10px;
+                                    border-radius: 20px;
+                                    font-size: 12px;
+                                    font-weight: bold;
+                                "
+                            >
+                                Working
+                            </span>
 
-</p>
+                            {% else %}
 
+                            <span
+                                style="
+                                    background: #fef3c7;
+                                    color: #b45309;
+                                    padding: 5px 10px;
+                                    border-radius: 20px;
+                                    font-size: 12px;
+                                    font-weight: bold;
+                                "
+                            >
+                                Not Working
+                            </span>
 
+                            {% endif %}
 
-<table>
+                        </td>
 
 
-<thead>
+                        <td style="padding: 14px;">
 
-<tr>
+                            {{ point['uptime'] }}%
 
-<th>
-ID
-</th>
+                        </td>
 
-<th>
-Water Point
-</th>
 
-<th>
-Habitation
-</th>
+                        <td style="padding: 14px;">
 
-<th>
-Status
-</th>
+                            {% if point['last_checked'] %}
 
-<th>
-Usage Count
-</th>
+                                {{ point['last_checked'] }}
 
-<th>
-Recorded At
-</th>
+                            {% else %}
 
-</tr>
+                                Not recorded
 
-</thead>
+                            {% endif %}
 
+                        </td>
 
 
-<tbody>
+                    </tr>
 
 
-{% for reading in readings %}
+                    {% endfor %}
 
 
-<tr>
+                </tbody>
 
 
-<td>
-{{ reading["reading_id"] }}
-</td>
+            </table>
 
 
-<td>
-{{ reading["waterpoint_id"] }}
-</td>
+        </div>
 
 
-<td>
-{{ reading["habitation"] }}
-</td>
+        {% else %}
 
 
-<td>
+        <div class="result-message">
 
+            <strong>
+                No water point readings found.
+            </strong>
 
-{% if reading["flow_ok"] == "Working" %}
+            <br><br>
 
-<span class="working">
+            Register a water point to see its
+            information here.
 
-Working
 
-</span>
+        </div>
 
 
-{% else %}
+        {% endif %}
 
-<span class="failed">
 
-Failed
+    </section>
 
-</span>
 
-{% endif %}
+    <div class="button-area">
 
+        <a
+            href="{{ url_for('register') }}"
+            class="primary-button"
+        >
+            + Register Water Point
+        </a>
 
-</td>
 
+        <a
+            href="{{ url_for('index') }}"
+            class="secondary-button"
+        >
+            Back to Dashboard
+        </a>
 
-<td>
-{{ reading["usage_count"] }}
-</td>
+    </div>
 
 
-<td>
-{{ reading["recorded_at"] }}
-</td>
+</main>
 
 
-</tr>
+<footer class="site-footer">
 
+    <p>
+        © 2026 Village Water Point Monitoring System
+    </p>
 
-{% else %}
+</footer>
 
 
-<tr>
-
-<td
-colspan="6"
-style="text-align:center;">
-
-No records found.
-
-</td>
-
-</tr>
-
-
-{% endfor %}
-
-
-</tbody>
-
-
-</table>
-
-
-</div>
-
-
-</div>
+<script src="{{ url_for('static', filename='js/script.js') }}">
+</script>
 
 
 </body>

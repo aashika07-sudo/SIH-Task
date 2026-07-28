@@ -1,133 +1,17 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-<title>Register Reading</title>
+    <title>Register Water Point</title>
 
-
-<style>
-
-body {
-
-    margin: 0;
-
-    font-family: Arial;
-
-    background: #eaf6ff;
-
-}
-
-
-header {
-
-    background: #075985;
-
-    color: white;
-
-    padding: 20px 40px;
-
-}
-
-
-header a {
-
-    color: white;
-
-    text-decoration: none;
-
-    margin-right: 25px;
-
-}
-
-
-.container {
-
-    max-width: 600px;
-
-    margin: 40px auto;
-
-    padding: 30px;
-
-    background: white;
-
-    border-radius: 15px;
-
-    box-shadow:
-    0 5px 18px
-    rgba(0,0,0,0.08);
-
-}
-
-
-h1 {
-
-    color: #075985;
-
-}
-
-
-label {
-
-    display: block;
-
-    margin-top: 15px;
-
-    font-weight: bold;
-
-}
-
-
-input,
-select {
-
-    width: 100%;
-
-    padding: 12px;
-
-    margin-top: 7px;
-
-    border: 1px solid #cbd5e1;
-
-    border-radius: 6px;
-
-}
-
-
-button {
-
-    margin-top: 25px;
-
-    width: 100%;
-
-    padding: 13px;
-
-    background: #0284c7;
-
-    color: white;
-
-    border: none;
-
-    border-radius: 7px;
-
-    cursor: pointer;
-
-}
-
-
-button:hover {
-
-    background: #0369a1;
-
-}
-
-</style>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/pages.css') }}">
 
 </head>
 
@@ -135,112 +19,217 @@ button:hover {
 <body>
 
 
-<header>
+<header class="site-header">
 
-<h2>
-Register Water Point Reading
-</h2>
+    <div class="header-inner">
 
-
-<a href="/">
-Dashboard
-</a>
+        <div class="site-title">
+            Village Water Point Monitoring
+        </div>
 
 
-<a href="/listing">
-Records
-</a>
+        <nav class="site-nav">
+
+            <a href="{{ url_for('index') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('listing') }}">
+                Water Points
+            </a>
+
+            <a href="{{ url_for('register') }}">
+                Register
+            </a>
+
+            <a href="{{ url_for('simulation') }}">
+                Control Simulation
+            </a>
+
+        </nav>
+
+    </div>
 
 </header>
 
 
-
-<div class="container">
-
-
-<h1>
-New Reading
-</h1>
+<main class="page-container">
 
 
-<form
-method="POST"
-action="/register">
+    <section class="page-introduction">
+
+        <h2>
+            Register Water Point
+        </h2>
+
+        <p>
+            Add a new village water point to the
+            monitoring system.
+        </p>
+
+    </section>
 
 
-<label>
-Water Point ID
-</label>
+    <section class="form-card">
+
+        <h2>
+            Water Point Details
+        </h2>
 
 
-<input
-type="text"
-name="waterpoint_id"
-placeholder="Example: WP041"
-required>
+        {% if error %}
+
+        <div class="result-message">
+
+            {{ error }}
+
+        </div>
+
+        {% endif %}
 
 
-<label>
-Habitation
-</label>
+        <form
+            method="POST"
+            action="{{ url_for('register') }}"
+        >
 
 
-<input
-type="text"
-name="habitation"
-placeholder="Example: North Colony"
-required>
+            <div class="form-group">
+
+                <label for="name">
+                    Water Point Name
+                </label>
+
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    placeholder="Enter water point name"
+                    required
+                >
+
+            </div>
 
 
-<label>
-Status
-</label>
+            <div class="form-group">
+
+                <label for="location">
+                    Location
+                </label>
+
+                <input
+                    type="text"
+                    id="location"
+                    name="location"
+                    placeholder="Enter village or location"
+                    required
+                >
+
+            </div>
 
 
-<select
-name="flow_ok"
-required>
+            <div class="form-group">
 
-<option value="">
-Select Status
-</option>
+                <label for="status">
+                    Current Status
+                </label>
 
-<option value="Working">
-Working
-</option>
+                <select
+                    id="status"
+                    name="status"
+                    required
+                >
 
-<option value="Failed">
-Failed
-</option>
+                    <option value="">
+                        Select Status
+                    </option>
 
-</select>
+                    <option value="Working">
+                        Working
+                    </option>
 
+                    <option value="Not Working">
+                        Not Working
+                    </option>
 
-<label>
-Usage Count
-</label>
+                </select>
 
-
-<input
-type="number"
-name="usage_count"
-min="0"
-placeholder="Example: 45"
-required>
+            </div>
 
 
-<button
-type="submit">
+            <div class="form-group">
 
-Save Reading
+                <label for="uptime">
+                    Uptime Percentage
+                </label>
 
-</button>
+                <input
+                    type="number"
+                    id="uptime"
+                    name="uptime"
+                    value="0"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    required
+                >
+
+            </div>
 
 
-</form>
+            <div class="form-group">
+
+                <label for="last_checked">
+                    Last Checked
+                </label>
+
+                <input
+                    type="datetime-local"
+                    id="last_checked"
+                    name="last_checked"
+                >
+
+            </div>
 
 
-</div>
+            <div class="button-area">
+
+                <button
+                    type="submit"
+                    class="primary-button"
+                >
+                    Save Water Point
+                </button>
+
+
+                <a
+                    href="{{ url_for('index') }}"
+                    class="secondary-button"
+                >
+                    Cancel
+                </a>
+
+            </div>
+
+
+        </form>
+
+    </section>
+
+</main>
+
+
+<footer class="site-footer">
+
+    <p>
+        © 2026 Village Water Point Monitoring System
+    </p>
+
+</footer>
+
+
+<script src="{{ url_for('static', filename='js/script.js') }}">
+</script>
 
 
 </body>
